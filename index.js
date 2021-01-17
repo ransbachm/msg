@@ -7,6 +7,7 @@ require("dotenv").config();
 
 const User = require("./models/user");
 const Message = require("./models/message");
+const { exit } = require("process");
 
 const urlString = process.env.CON_STRING;
 
@@ -15,7 +16,7 @@ mongoose.connect(urlString, {
     useUnifiedTopology: true,
     useCreateIndex: true
 }).then(() => console.log("connected to db"))
-    .catch(e =>{throw e});
+    .catch(e =>{console.log("Could not connect do database\nCheck provided connection url"); exit(1)});
 
 const app = express();
 
