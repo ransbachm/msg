@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Pastel is nice</title>
+    </head>
+
+    <body>
+        <h1>Messages here</h1>
+        <div id="messages"></div>
+        <br>
+        <form action="" id="messageForm">
+            <label for="msg">Message:</label>
+            <input name="msg" id="msg">
+
+            <label></label>
+            <input name="creator" id="creator">
+
+            <input type="submit">
+        </form>
+
+    </body>
+
+    <style>
+
+        #messages {
+            border: solid 2px rgb(78, 153, 153);
+            display: inline-block;
+            padding: 10px;
+        }
+
+        #messages > div {
+            font-family: monospace;
+            border: solid 1px rgb(58, 131, 241);
+            padding: 3px;
+        }
+
+        form {
+            margin-top: 10px;
+            border: solid 1px rgb(78, 153, 153);
+            display: inline-block;
+            padding: 10px;
+        }
+
+    </style>
+
+    <script>
+        function submit(toSubmit) {
+            toSubmit.preventDefault();
+            console.log("submir : " + toSubmit)
+            return false
+        }
+        let statechange = 0;
+        document.onreadystatechange = () => {
+            if(statechange++>0) return; // only execute once
+            let messageDiv = document.querySelector("#messages");
+
+            console.log("ready")
+
+            async function loadMessages() {
+                let messages = await (await fetch("/api/message")).json()
+                for(let message of messages) {
+                    let newMessageDiv = document.createElement("div");
+                    
+                    let msg = document.createElement("span");
+                    msg.innerHTML = message.msg;
+
+                    let space = document.createElement("span");
+                    space.innerHTML = " | ";
+
+                    let creator = document.createElement("span");
+                    creator.innerHTML = message.creator;
+                    
+                    newMessageDiv.appendChild(msg);
+                    newMessageDiv.appendChild(space);
+                    newMessageDiv.appendChild(creator);
+                    messageDiv.appendChild(newMessageDiv);
+                }
+            }
+            loadMessages();
+
+            const myForm = document.querySelector("#messageForm");
+            myForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(e.target);
+                let useableData = {};
+                formData.forEach((v, k) => useableData[k] = v);
+                useableData = JSON.stringify(useableData);
+
+                fetch("/api/message", {
+                    method: "post",
+                    body: useableData,
+                    headers: new Headers({'content-type': 'application/json'})
+                });
+            })
+
+        }
+    </script>
+</html>
